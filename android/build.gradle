@@ -11,6 +11,7 @@ buildscript {
         jcenter(){
             url "https://jcenter.bintray.com/"
         }
+        maven { url "https://jitpack.io" }
     }
 
     dependencies {
@@ -28,6 +29,7 @@ rootProject.allprojects {
         jcenter(){
             url "https://jcenter.bintray.com/"
         }
+        maven { url "https://jitpack.io" }
     }
 }
 
@@ -43,5 +45,10 @@ android {
 
     defaultConfig {
         minSdkVersion 23
+    }
+
+    dependencies {
+        implementation fileTree(include: ['*.jar'], dir: 'libs')
+        implementation 'com.github.jiangdongguo:AndroidUSBCamera:3.2.6'
     }
 }
