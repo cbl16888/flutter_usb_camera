@@ -11,8 +11,16 @@ class FlutterUsbCamera {
     return FlutterUsbCameraPlatform.instance.getPlatformVersion();
   }
 
-  Future<bool?> takePicture(String deviceId) {
+  Future<bool?> takePicture(int deviceId) {
     return FlutterUsbCameraPlatform.instance.takePicture(deviceId);
+  }
+
+  Future<bool?> startPreview(int deviceId) {
+    return FlutterUsbCameraPlatform.instance.startPreview(deviceId);
+  }
+
+  Future<bool?> stopPreview(int deviceId) {
+    return FlutterUsbCameraPlatform.instance.stopPreview(deviceId);
   }
 
   Stream<USBCameraEvent> get events => FlutterUsbCameraPlatform.instance.events;

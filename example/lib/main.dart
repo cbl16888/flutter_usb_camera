@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_usb_camera/flutter_usb_camera.dart';
 import 'package:flutter_usb_camera/flutter_usb_camera_platform_interface.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +23,7 @@ class _MyAppState extends State<MyApp> {
   late StreamSubscription _usbCameraBus;
   int cameraCount = 0;
   String logStr = "";
-  bool isShowLog = true;
+  bool isShowLog = false;
 
   @override
   void initState() {
@@ -92,15 +93,43 @@ class _MyAppState extends State<MyApp> {
           children: [
             Column(
               children: [
-                Text("$cameraCount"),
-                Center(
-                  child: Text('Running on: $_platformVersion\n'),
+                Text("设备号: $cameraCount"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                        onPressed: () async {
+                            PermissionStatus status = await Permission.storage.request();
+                            if (status == PermissionStatus.granted) {
+                                _flutterUsbCameraPlugin.takePicture(cameraCount);
+                            }
+                        },
+                        child: const Text('拍照')),
+                    TextButton(
+                        onPressed: () async {
+                          PermissionStatus status = await Permission.camera.request();
+                          if (status == PermissionStatus.granted) {
+                            _flutterUsbCameraPlugin.startPreview(cameraCount);
+                          }
+                        },
+                        child: const Text('开始')),
+                    TextButton(
+                        onPressed: () {
+                          _flutterUsbCameraPlugin.stopPreview(cameraCount);
+                        },
+                        child: const Text('结束')),
+                  ],
                 ),
-                TextButton(
-                    onPressed: () {
-                      _flutterUsbCameraPlugin.takePicture("deviceId");
-                    },
-                    child: const Text('拍照')),
+                Container(
+                  width: 150,
+                  height: 150,
+                  // color: Colors.red.withOpacity(0.2),
+                  child: cameraCount > 0
+                      ? AndroidView(
+                          viewType: cameraCount.toString(),
+                        )
+                      : null,
+                )
               ],
             ),
             isShowLog

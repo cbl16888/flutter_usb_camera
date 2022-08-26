@@ -29,29 +29,33 @@ public class FlutterUsbCameraPlugin implements FlutterPlugin, MethodCallHandler 
   /// when the Flutter Engine is detached from the Activity
   private MethodChannel channel;
   private MultiCameraClient mCameraClient;
+  private Context context;
+  private FlutterPluginBinding flutterPluginBinding;
   private final Map<Integer, UsbCameraViewFactory> mFactoryMap = new HashMap<>();
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+    this.flutterPluginBinding = flutterPluginBinding;
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "flutter_usb_camera");
     DebugLog.channel = channel;
     channel.setMethodCallHandler(this);
-    Context context = flutterPluginBinding.getApplicationContext();
+    context = flutterPluginBinding.getApplicationContext();
     IDeviceConnectCallBack callback = new IDeviceConnectCallBack() {
       @Override
       public void onAttachDev(@Nullable UsbDevice usbDevice) {
         if (usbDevice == null) {
           return;
         }
-        DebugLog.log("发现设备:" + usbDevice.getDeviceId() + usbDevice.getDeviceName() + usbDevice.toString());
+        DebugLog.log("发现设备:" + usbDevice.getDeviceId() + usbDevice.getDeviceName());
         if (!mFactoryMap.containsKey(usbDevice.getDeviceId())) {
           Boolean hasPermission = mCameraClient.requestPermission(usbDevice);
           DebugLog.log("请求权限:" + hasPermission);
           if (Boolean.TRUE.equals(hasPermission)) {
             UsbCameraViewFactory factory = new UsbCameraViewFactory(StandardMessageCodec.INSTANCE, context, channel, usbDevice);
             mFactoryMap.put(usbDevice.getDeviceId(), factory);
+            flutterPluginBinding.getPlatformViewRegistry().registerViewFactory(String.valueOf(usbDevice.getDeviceId()), factory);
             factory.onCameraAttached();
-            channel.invokeMethod("onUsbCameraChanged", mFactoryMap.size());
+            channel.invokeMethod("onUsbCameraChanged", usbDevice.getDeviceId());
           }
         } else {
           DebugLog.log("设备已添加:" + usbDevice.getDeviceId());
@@ -111,10 +115,32 @@ public class FlutterUsbCameraPlugin implements FlutterPlugin, MethodCallHandler 
     if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
     } else if (call.method.equals("takePicture")) {
-      String deviceId = (String) call.arguments;
-//      mUvcCameraFactory.takePicture();
-      Log.d("info", deviceId);
-      result.success(true);
+      int deviceId = (int) call.arguments;
+      UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
+      if (null != factory) {
+        factory.takePicture();
+        result.success(true);
+      } else {
+        result.success(false);
+      }
+    } else if (call.method.equals("startPreview")) {
+      int deviceId = (int) call.arguments;
+      UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
+      if (null != factory) {
+        factory.startPreview();
+        result.success(true);
+      } else {
+        result.success(false);
+      }
+    } else if (call.method.equals("stopPreview")) {
+      int deviceId = (int) call.arguments;
+      UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
+      if (null != factory) {
+        factory.stopPreview();
+        result.success(true);
+      } else {
+        result.success(false);
+      }
     } else if (call.method.equals("clearLog")) {
       DebugLog.clearLog();
       result.success(true);

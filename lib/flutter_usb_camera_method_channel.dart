@@ -22,9 +22,23 @@ class MethodChannelFlutterUsbCamera extends FlutterUsbCameraPlatform {
   }
 
   @override
-  Future<bool?> takePicture(String deviceId) async {
+  Future<bool?> takePicture(int deviceId) async {
     final isSuccess =
         await methodChannel.invokeMethod<bool>('takePicture', deviceId);
+    return isSuccess;
+  }
+
+  @override
+  Future<bool?> startPreview(int deviceId) async {
+    final isSuccess =
+        await methodChannel.invokeMethod<bool>('startPreview', deviceId);
+    return isSuccess;
+  }
+
+  @override
+  Future<bool?> stopPreview(int deviceId) async{
+    final isSuccess =
+        await methodChannel.invokeMethod<bool>('stopPreview', deviceId);
     return isSuccess;
   }
 

@@ -32,8 +32,16 @@ abstract class FlutterUsbCameraPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<bool?> takePicture(String deviceId) {
+  Future<bool?> takePicture(int deviceId) {
     throw UnimplementedError('takePicture() has not been implemented.');
+  }
+
+  Future<bool?> startPreview(int deviceId) {
+    throw UnimplementedError('startPreview() has not been implemented.');
+  }
+
+  Future<bool?> stopPreview(int deviceId) {
+    throw UnimplementedError('stopPreview() has not been implemented.');
   }
 }
 

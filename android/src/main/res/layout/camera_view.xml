@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical">
+
+    <com.jiangdg.ausbc.widget.AspectRatioTextureView
+        android:id="@+id/texture_view"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="5dp"
+        />
+
+<!--    <TextView-->
+<!--        android:id="@+id/multi_camera_tip"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="50dp"-->
+<!--        android:gravity="center"-->
+<!--        android:text="NO UVC CAMERAS"-->
+<!--        android:textColor="@color/GRAY"-->
+<!--        android:textStyle="bold"-->
+<!--        android:textSize="28sp"/>-->
+</LinearLayout>

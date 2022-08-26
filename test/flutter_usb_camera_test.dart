@@ -12,7 +12,7 @@ class MockFlutterUsbCameraPlatform
   Future<String?> getPlatformVersion() => Future.value('42');
 
   @override
-  Future<bool?> takePicture(String deviceId) {
+  Future<bool?> takePicture(int deviceId) {
     // TODO: implement takePicture
     throw UnimplementedError();
   }
@@ -25,6 +25,18 @@ class MockFlutterUsbCameraPlatform
   @override
   // TODO: implement events
   Stream<USBCameraEvent> get events => throw UnimplementedError();
+
+  @override
+  Future<bool?> startPreview(int deviceId) {
+    // TODO: implement startPreview
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool?> stopPreview(int deviceId) {
+    // TODO: implement stopPreview
+    throw UnimplementedError();
+  }
 }
 
 void main() {
