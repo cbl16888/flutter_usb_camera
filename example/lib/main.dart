@@ -101,7 +101,10 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () async {
                             PermissionStatus status = await Permission.storage.request();
                             if (status == PermissionStatus.granted) {
-                                _flutterUsbCameraPlugin.takePicture(cameraCount);
+                                status = await Permission.locationWhenInUse.request();
+                                if (status == PermissionStatus.granted) {
+                                    _flutterUsbCameraPlugin.takePicture(cameraCount);
+                                }
                             }
                         },
                         child: const Text('拍照')),
@@ -109,7 +112,10 @@ class _MyAppState extends State<MyApp> {
                         onPressed: () async {
                           PermissionStatus status = await Permission.camera.request();
                           if (status == PermissionStatus.granted) {
-                            _flutterUsbCameraPlugin.startPreview(cameraCount);
+                              status = await Permission.locationWhenInUse.request();
+                              if (status == PermissionStatus.granted) {
+                                  _flutterUsbCameraPlugin.startPreview(cameraCount);
+                              }
                           }
                         },
                         child: const Text('开始')),
@@ -121,8 +127,8 @@ class _MyAppState extends State<MyApp> {
                   ],
                 ),
                 Container(
-                  width: 150,
-                  height: 150,
+                  width: 350,
+                  height: 350,
                   // color: Colors.red.withOpacity(0.2),
                   child: cameraCount > 0
                       ? AndroidView(

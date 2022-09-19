@@ -55,7 +55,7 @@ public class UsbCameraViewFactory  extends PlatformViewFactory {
                 public void onPreviewData(@Nullable byte[] bytes, @NonNull DataFormat dataFormat) {
 //                    DebugLog.log(Arrays.toString(bytes));
 //                    DebugLog.log(String.valueOf(dataFormat));
-                    Log.i("info", Arrays.toString(bytes));
+//                    Log.i("info", Arrays.toString(bytes));
                     previewData = bytes;
                 }
             };
@@ -112,25 +112,25 @@ public class UsbCameraViewFactory  extends PlatformViewFactory {
         public void takePicture() {
         if (null != camera) {
             DebugLog.log("开始拍照");
-            save();
-//            camera.captureImage(new ICaptureCallBack() {
-//                @Override
-//                public void onError(@Nullable String s) {
-//                    Log.i("info", "拍照失败" + s);
-//                    DebugLog.log("拍照失败" + s);;
-//                }
-//
-//                @Override
-//                public void onComplete(@Nullable String s) {
-//                    Log.i("info", "拍照完成" + s);
-//                    DebugLog.log("拍照完成: " + s);
-//                }
-//
-//                @Override
-//                public void onBegin() {
-//
-//                }
-//            }, getPicturePath());
+//            save();
+            camera.captureImage(new ICaptureCallBack() {
+                @Override
+                public void onError(@Nullable String s) {
+                    Log.i("info", "拍照失败" + s);
+                    DebugLog.log("拍照失败" + s);;
+                }
+
+                @Override
+                public void onComplete(@Nullable String s) {
+                    Log.i("info", "拍照完成" + s);
+                    DebugLog.log("拍照完成: " + s);
+                }
+
+                @Override
+                public void onBegin() {
+
+                }
+            }, null);
         } else {
             DebugLog.log("开始拍照,相机为空");
         }

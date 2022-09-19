@@ -8,8 +8,8 @@
 
     <com.jiangdg.ausbc.widget.AspectRatioTextureView
         android:id="@+id/texture_view"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_margin="5dp"
         />
 
