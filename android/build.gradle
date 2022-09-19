@@ -49,6 +49,6 @@ android {
 
     dependencies {
         implementation fileTree(include: ['*.jar'], dir: 'libs')
-        implementation 'com.github.jiangdongguo:AndroidUSBCamera:3.2.6'
+        implementation 'com.github.jiangdongguo:AndroidUSBCamera:3.2.8'
     }
 }

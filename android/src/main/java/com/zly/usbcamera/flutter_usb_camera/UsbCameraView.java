@@ -1,15 +1,11 @@
 package com.zly.usbcamera.flutter_usb_camera;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-
-import com.serenegiant.usb.UVCCamera;
 
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;

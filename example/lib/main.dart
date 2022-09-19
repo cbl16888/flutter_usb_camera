@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -21,9 +22,14 @@ class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   final _flutterUsbCameraPlugin = FlutterUsbCamera();
   late StreamSubscription _usbCameraBus;
-  int cameraCount = 0;
+  int deviceId = 0;
   String logStr = "";
   bool isShowLog = false;
+  bool isWorking = false;
+  bool isRecord = false;
+  bool isTaking = false;
+  int zoom = 0;
+  bool isOpened = false;
 
   @override
   void initState() {
@@ -31,9 +37,15 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
     _usbCameraBus = _flutterUsbCameraPlugin.events.listen((event) {
       if (event.event == USBCameraEvent.onUsbCameraChanged) {
-        setState(() {
-          cameraCount = event.count ?? 0;
-        });
+        deviceId = event.count ?? 0;
+        if (deviceId == 0) {
+          isWorking = false;
+          isRecord = false;
+          isTaking = false;
+          isOpened = false;
+          zoom = 0;
+        }
+        setState(() {});
       } else if (event.event == USBCameraEvent.onLogChanged) {
         setState(() {
           logStr = event.logString ?? "";
@@ -93,46 +105,204 @@ class _MyAppState extends State<MyApp> {
           children: [
             Column(
               children: [
-                Text("设备号: $cameraCount"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("设备: $deviceId  ${deviceId > 0 ? "已连接" : "未连接"}  "),
+                    Text(
+                      "运行: ${isWorking ? "运行中" : "未运行"}  ",
+                      style: TextStyle(
+                          color: isWorking ? Colors.red : Colors.black),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "拍照: ${isTaking ? "拍照中" : "未拍照"}  ",
+                      style: TextStyle(
+                          color: isTaking ? Colors.red : Colors.black),
+                    ),
+                    Text(
+                      "录制: ${isRecord ? "录制中" : "未录制"}  ",
+                      style: TextStyle(
+                          color: isRecord ? Colors.red : Colors.black),
+                    ),
+                    Text("变焦: $zoom  ")
+                  ],
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextButton(
                         onPressed: () async {
-                            PermissionStatus status = await Permission.storage.request();
+                          if (isWorking) {
+                            return;
+                          }
+                          PermissionStatus status =
+                              await Permission.camera.request();
+                          if (status == PermissionStatus.granted) {
+                            // status = await Permission.locationWhenInUse.request();
+                            // if (status == PermissionStatus.granted) {
+                            setState(() {
+                              isWorking = true;
+                            });
+                            _flutterUsbCameraPlugin.startPreview(deviceId);
+                            // }
+                          }
+                        },
+                        child: const Text('开始运行')),
+                    TextButton(
+                        onPressed: () {
+                          if (!isWorking) {
+                            return;
+                          }
+                          setState(() {
+                            isWorking = false;
+                          });
+                          _flutterUsbCameraPlugin.stopPreview(deviceId);
+                        },
+                        child: const Text('停止运行')),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                        onPressed: () async {
+                          if (isTaking || !isWorking) {
+                            return;
+                          }
+                          bool? isOpened = await _flutterUsbCameraPlugin
+                              .isCameraOpened(deviceId);
+                          if (isOpened == true) {
+                            PermissionStatus status =
+                                await Permission.storage.request();
                             if (status == PermissionStatus.granted) {
-                                status = await Permission.locationWhenInUse.request();
-                                if (status == PermissionStatus.granted) {
-                                    _flutterUsbCameraPlugin.takePicture(cameraCount);
+                              // status = await Permission.locationWhenInUse.request();
+                              // if (status == PermissionStatus.granted) {
+                              setState(() {
+                                isTaking = true;
+                              });
+                              _flutterUsbCameraPlugin
+                                  .takePicture(deviceId)
+                                  .then((value) {
+                                if (kDebugMode) {
+                                  print("拍照成功: $value");
                                 }
+                              }).catchError((onError) {
+                                if (kDebugMode) {
+                                  print("拍照失败: ${onError.toString}");
+                                }
+                              }).whenComplete(() {
+                                setState(() {
+                                  isTaking = false;
+                                });
+                              });
+                              // }
                             }
+                          }
                         },
                         child: const Text('拍照')),
                     TextButton(
                         onPressed: () async {
-                          PermissionStatus status = await Permission.camera.request();
-                          if (status == PermissionStatus.granted) {
-                              status = await Permission.locationWhenInUse.request();
+                          if (isRecord || !isWorking || isTaking) {
+                            return;
+                          }
+                          bool? isOpened = await _flutterUsbCameraPlugin
+                              .isCameraOpened(deviceId);
+                          if (isOpened == true) {
+                            bool? isRecording = await _flutterUsbCameraPlugin
+                                .isRecordVideo(deviceId);
+                            if (isRecording == false) {
+                              PermissionStatus status =
+                                  await Permission.storage.request();
                               if (status == PermissionStatus.granted) {
-                                  _flutterUsbCameraPlugin.startPreview(cameraCount);
+                                status =
+                                await Permission.microphone.request();
                               }
+                              if (status == PermissionStatus.granted) {
+                                // status = await Permission.locationWhenInUse.request();
+                                // if (status == PermissionStatus.granted) {
+                                setState(() {
+                                  isRecord = true;
+                                });
+                                _flutterUsbCameraPlugin
+                                    .captureVideoStart(deviceId)
+                                    .then((value) {
+                                  if (kDebugMode) {
+                                    print("开始录制成功: $value");
+                                  }
+                                }).catchError((onError) {
+                                  if (kDebugMode) {
+                                    print("开始录制失败: ${onError.toString}");
+                                  }
+                                  setState(() {
+                                    isRecord = false;
+                                  });
+                                });
+                                // }
+                              }
+                            } else if (isRecording == true) {
+                              setState(() {
+                                isRecord = true;
+                              });
+                            }
                           }
                         },
-                        child: const Text('开始')),
+                        child: const Text('开始录制')),
                     TextButton(
                         onPressed: () {
-                          _flutterUsbCameraPlugin.stopPreview(cameraCount);
+                          if (isRecord) {
+                            setState(() {
+                              isRecord = false;
+                            });
+                            _flutterUsbCameraPlugin.captureVideoStop(deviceId);
+                          }
                         },
-                        child: const Text('结束')),
+                        child: const Text('结束录制')),
+                    TextButton(
+                        onPressed: () async {
+                          if (isWorking) {
+                            bool? isOpened = await _flutterUsbCameraPlugin
+                                .isCameraOpened(deviceId);
+                            if (isOpened == true) {
+                              int? zoomValue = await _flutterUsbCameraPlugin
+                                  .getZoom(deviceId);
+                              setState(() {
+                                zoom = zoomValue ?? 0;
+                              });
+                            }
+                          }
+                        },
+                        child: const Text('获取变焦')),
+                    TextButton(
+                        onPressed: () async {
+                          if (isWorking && !isTaking && !isRecord) {
+                            bool? isOpened = await _flutterUsbCameraPlugin
+                                .isCameraOpened(deviceId);
+                            if (isOpened == true) {
+                              bool? isSuccess = await _flutterUsbCameraPlugin
+                                  .setZoom(deviceId, zoom + 1);
+                              if (isSuccess == true) {
+                                setState(() {
+                                  zoom += 1;
+                                });
+                              }
+                            }
+                          }
+                        },
+                        child: const Text('设置变焦')),
                   ],
                 ),
                 Container(
                   width: 350,
                   height: 350,
                   // color: Colors.red.withOpacity(0.2),
-                  child: cameraCount > 0
+                  child: deviceId > 0
                       ? AndroidView(
-                          viewType: cameraCount.toString(),
+                          viewType: deviceId.toString(),
                         )
                       : null,
                 )

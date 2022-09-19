@@ -12,7 +12,7 @@ class MockFlutterUsbCameraPlatform
   Future<String?> getPlatformVersion() => Future.value('42');
 
   @override
-  Future<bool?> takePicture(int deviceId) {
+  Future<String?> takePicture(int deviceId) {
     // TODO: implement takePicture
     throw UnimplementedError();
   }
@@ -35,6 +35,42 @@ class MockFlutterUsbCameraPlatform
   @override
   Future<bool?> stopPreview(int deviceId) {
     // TODO: implement stopPreview
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String?> captureVideoStart(int deviceId) {
+    // TODO: implement captureVideoStart
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool?> captureVideoStop(int deviceId) {
+    // TODO: implement captureVideoStop
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<int?> getZoom(int deviceId) {
+    // TODO: implement getZoom
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool?> isCameraOpened(int deviceId) {
+    // TODO: implement isCameraOpened
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool?> isRecordVideo(int deviceId) {
+    // TODO: implement isRecordVideo
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool?> setZoom(int deviceId, int zoom) {
+    // TODO: implement setZoom
     throw UnimplementedError();
   }
 }

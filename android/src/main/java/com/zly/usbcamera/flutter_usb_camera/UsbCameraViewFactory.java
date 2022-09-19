@@ -92,15 +92,15 @@ public class UsbCameraViewFactory  extends PlatformViewFactory {
 
     }
 
-    public String getPicturePath() {
+    public String getMediaPath(boolean isVideo) {
         String mFile = null;
         if (context == null) {
             return "";
         }
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
         String now = df.format(System.currentTimeMillis());
-        String path = context.getExternalFilesDir(null) + "/UsbCamera";
-        mFile = context.getExternalFilesDir(null) + "/UsbCamera/" + now + ".jpg";
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/UsbCamera";
+        mFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/UsbCamera/" + now + (isVideo ? "" : ".jpg");
         File filePath = new File(path);
         if (!filePath.exists()) {
             filePath.mkdirs();
@@ -109,59 +109,112 @@ public class UsbCameraViewFactory  extends PlatformViewFactory {
     }
 
 
-        public void takePicture() {
+    public void takePicture(@NonNull MethodChannel.Result result) {
         if (null != camera) {
             DebugLog.log("开始拍照");
-//            save();
             camera.captureImage(new ICaptureCallBack() {
                 @Override
                 public void onError(@Nullable String s) {
                     Log.i("info", "拍照失败" + s);
-                    DebugLog.log("拍照失败" + s);;
+                    DebugLog.log("拍照失败" + s);
+                    result.error("100", "拍照失败", s);
                 }
 
                 @Override
                 public void onComplete(@Nullable String s) {
                     Log.i("info", "拍照完成" + s);
                     DebugLog.log("拍照完成: " + s);
+                    result.success(s);
                 }
-
                 @Override
                 public void onBegin() {
 
                 }
-            }, null);
+            }, getMediaPath(false));
         } else {
             DebugLog.log("开始拍照,相机为空");
+            result.error("100", "拍照失败", "相机为空");
         }
     }
 
-    public void save() {
-        if (null == previewData) {
-            return;
-        }
-        String fileName = System.currentTimeMillis() + ".jpg";  //jpeg文件名定义
-        String path = context.getExternalFilesDir(null) + "/UsbCamera";
-        String mFile = context.getExternalFilesDir(null) + "/UsbCamera/" + fileName;
-        File filePath = new File(path);
-        if (!filePath.exists()) {
-            filePath.mkdirs();
-        }
-        File pictureFile = new File(mFile);
-        if (!pictureFile.exists()) {
-            try {
-                pictureFile.createNewFile();
-                FileOutputStream filecon = new FileOutputStream(pictureFile);
-                YuvImage image = new YuvImage(previewData, ImageFormat.NV21, 1280, 720, null);   //将NV21 data保存成YuvImage
-                //图像压缩
-                image.compressToJpeg(
-                        new Rect(0, 0, image.getWidth(), image.getHeight()),
-                        100, filecon);   // 将NV21格式图片，以质量70压缩成Jpeg，并得到JPEG数据流
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    public void captureVideoStart(@NonNull MethodChannel.Result result) {
+        if (null != camera) {
+            DebugLog.log("开始录制视频");
+            camera.captureVideoStart(new ICaptureCallBack() {
+                @Override
+                public void onError(@Nullable String s) {
+                    Log.i("info", "开始录制视频失败" + s);
+                    DebugLog.log("开始录制视频失败" + s);
+                    result.error("100", "开始录制视频失败", s);
+                }
 
+                @Override
+                public void onComplete(@Nullable String s) {
+                    Log.i("info", "录制视频成功" + s);
+                    DebugLog.log("录制视频成功: " + s);
+                    result.success(s);
+                }
+                @Override
+                public void onBegin() {
+
+                }
+            }, getMediaPath(true), 0L);
+        } else {
+            DebugLog.log("开始录制视频失败,相机为空");
+            result.error("100", "开始录制视频失败", "相机为空");
+        }
+    }
+
+    public void captureVideoStop(@NonNull MethodChannel.Result result) {
+        if (null != camera) {
+            DebugLog.log("结束录制视频成功");
+            camera.captureVideoStop();
+            result.success(true);
+        } else {
+            DebugLog.log("结束录制视频失败,相机为空");
+            result.error("100", "结束录制视频失败", "相机为空");
+        }
+    }
+
+    public void isCameraOpened(@NonNull MethodChannel.Result result) {
+        if (null != camera) {
+            DebugLog.log("获取相机是否打开成功");
+            result.success(camera.isCameraOpened());
+        } else {
+            DebugLog.log("获取相机是否打开失败,相机为空");
+            result.error("100", "获取相机是否打开失败", "相机为空");
+        }
+    }
+
+    public void isRecordVideo(@NonNull MethodChannel.Result result) {
+        if (null != camera) {
+            DebugLog.log("获取是否录制视频成功");
+            result.success(camera.isRecordVideo());
+        } else {
+            DebugLog.log("获取是否录制视频失败,相机为空");
+            result.error("100", "获取是否录制视频失败", "相机为空");
+        }
+    }
+
+    public void setZoom(int zoom,  @NonNull MethodChannel.Result result) {
+        if (null != camera) {
+            DebugLog.log("设置缩放比例成功");
+            camera.setZoom(zoom);
+            result.success(true);
+        } else {
+            DebugLog.log("设置缩放比例失败,相机为空");
+            result.error("100", "设置缩放比例失败", "相机为空");
+        }
+    }
+
+    public void getZoom(@NonNull MethodChannel.Result result) {
+        if (null != camera) {
+            DebugLog.log("获取缩放比例成功");
+            result.success(camera.getZoom());
+        } else {
+            DebugLog.log("获取缩放比例失败,相机为空");
+            result.error("100", "获取缩放比例失败", "相机为空");
+        }
     }
 
     public void startPreview() {

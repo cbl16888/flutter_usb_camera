@@ -118,10 +118,59 @@ public class FlutterUsbCameraPlugin implements FlutterPlugin, MethodCallHandler 
       int deviceId = (int) call.arguments;
       UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
       if (null != factory) {
-        factory.takePicture();
-        result.success(true);
+        factory.takePicture(result);
       } else {
-        result.success(false);
+        result.error("100", "拍照失败", "初始化失败");
+      }
+    } else if (call.method.equals("captureVideoStart")) {
+      int deviceId = (int) call.arguments;
+      UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
+      if (null != factory) {
+        factory.captureVideoStart(result);
+      } else {
+        result.error("100", "开始录制视频失败", "初始化失败");
+      }
+    } else if (call.method.equals("captureVideoStop")) {
+      int deviceId = (int) call.arguments;
+      UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
+      if (null != factory) {
+        factory.captureVideoStop(result);
+      } else {
+        result.error("100", "停止录制视频失败", "初始化失败");
+      }
+    } else if (call.method.equals("isCameraOpened")) {
+      int deviceId = (int) call.arguments;
+      UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
+      if (null != factory) {
+        factory.isCameraOpened(result);
+      } else {
+        result.error("100", "获取相机是否开启失败", "初始化失败");
+      }
+    } else if (call.method.equals("isRecordVideo")) {
+      int deviceId = (int) call.arguments;
+      UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
+      if (null != factory) {
+        factory.isRecordVideo(result);
+      } else {
+        result.error("100", "获取是否录制视频失败", "初始化失败");
+      }
+    } else if (call.method.equals("getZoom")) {
+      int deviceId = (int) call.arguments;
+      UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
+      if (null != factory) {
+        factory.getZoom(result);
+      } else {
+        result.error("100", "获取缩放比例失败", "初始化失败");
+      }
+    } else if (call.method.equals("setZoom")) {
+      Map argus = (Map) call.arguments;
+      int deviceId = (int) argus.get("deviceId");
+      int zoom = (int) argus.get("zoom");
+      UsbCameraViewFactory factory =  mFactoryMap.get(deviceId);
+      if (null != factory) {
+        factory.setZoom(zoom, result);
+      } else {
+        result.error("100", "设置缩放比例失败", "初始化失败");
       }
     } else if (call.method.equals("startPreview")) {
       int deviceId = (int) call.arguments;
